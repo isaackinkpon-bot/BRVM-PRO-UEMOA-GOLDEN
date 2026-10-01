@@ -1,0 +1,30 @@
+<!-- Boutons d'achat sur vos cartes produits -->
+<button onclick="buyProduct('manuel')">Acheter le Manuel (100 FCFA)</button>
+<button onclick="buyProduct('niveau1')">Acheter Niveau 1 (1000 FCFA)</button>
+<button onclick="buyProduct('niveau2')">Acheter Niveau 2 (2500 FCFA)</button>
+<button onclick="buyProduct('niveau3')">Acheter Niveau 3 (5000 FCFA)</button>
+
+<script>
+async function buyProduct(productId) {
+  try {
+    const response = await fetch("/.netlify/functions/create-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product: productId })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      alert(data.error || "Impossible de démarrer le paiement.");
+      return;
+    }
+
+    // Redirection vers l'interface sécurisée de FedaPay
+    window.location.href = data.paymentUrl;
+
+  } catch (err) {
+    alert("Erreur de connexion au serveur.");
+  }
+}
+</script>
