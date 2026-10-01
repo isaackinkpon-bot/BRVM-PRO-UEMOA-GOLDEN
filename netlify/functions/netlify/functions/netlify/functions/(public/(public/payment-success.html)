@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Paiement Réussi - BRVM PRO GOLDEN</title>
+</head>
+<body>
+  <div id="status-container">
+    <h2>Vérification de votre paiement en cours...</h2>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const transactionId = urlParams.get('id');
+
+    async function verifyAndDeliver() {
+      if (!transactionId) {
+        document.getElementById('status-container').innerHTML = "<p>Aucun identifiant de transaction trouvé.</p>";
+        return;
+      }
+
+      try {
+        const response = await fetch(`/.netlify/functions/payment-status?id=${transactionId}`);
+        const data = await response.json();
+
+        if (data.success && data.status === 'approved') {
+          // Associer le produit en fonction du montant validé par la transaction
+          let product = "manuel";
+          if (data.amount === 1000) product = "niveau1";
+          if (data.amount === 2500) product = "niveau2";
+          if (data.amount === 5000) product = "niveau3";
+
+          document.getElementById('status-container').innerHTML = `
+            <h2 style="color: green;">Paiement Confirme !</h2>
+            <p>Merci pour votre achat. Cliquez ci-dessous pour télécharger votre document PDF.</p>
+            <a href="/.netlify/functions/download-pdf?id=${transactionId}&product=${product}" download style="background: gold; padding: 12px 20px; text-decoration: none; font-weight: bold; color: #000; display: inline-block;">
+              Télécharger mon PDF
+            </a>
+          `;
+        } else if (data.status === 'pending') {
+          window.location.href = '/payment-pending.html';
+        } else {
+          window.location.href = '/payment-failed.html';
+        }
+      } catch (err) {
+        document.getElementById('status-container').innerHTML = "<p>Erreur lors de la vérification du paiement.</p>";
+      }
+    }
+
+    verifyAndDeliver();
+  </script>
+</body>
+</html>
