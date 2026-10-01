@@ -1,0 +1,8 @@
+{
+  "name": "brvm-pro-golden",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "fedapay": "^1.1.0"
+  }
+}
